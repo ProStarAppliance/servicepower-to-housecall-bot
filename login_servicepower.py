@@ -13,13 +13,15 @@ SP_PASSWORD = os.getenv("SP_PASSWORD")
 
 def get_driver():
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")  # new headless mode
+    chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
-    driver = webdriver.Chrome(options=chrome_options)
-    return driver
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+    return webdriver.Chrome(options=chrome_options)
 
 def main():
     driver = get_driver()
@@ -29,6 +31,8 @@ def main():
 
         # 🔍 Save a screenshot of the login page (for debugging)
         driver.save_screenshot("login_page.png")
+
+        print(driver.page_source[:1000])  # print first 1000 characters of HTML
 
         # ✅ Wait for login fields
         WebDriverWait(driver, 20).until(
