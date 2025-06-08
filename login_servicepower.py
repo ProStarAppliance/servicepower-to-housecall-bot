@@ -25,7 +25,7 @@ def main():
     driver = get_driver()
 
     try:
-        driver.get("https://www.servicepower.com/login")  # Replace with actual login URL
+        driver.get("https://hub.servicepower.com/signin")
 
         # Wait for username field
         WebDriverWait(driver, 20).until(
@@ -49,7 +49,7 @@ def main():
 
         # Optional: wait for successful login confirmation (adjust selector)
         WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.ID, "dashboard"))  # Example ID
+            EC.presence_of_element_located((By.ID, "dashboard"))
         )
         print("🎉 Logged in and dashboard loaded.")
 
