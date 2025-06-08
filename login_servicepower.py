@@ -1,70 +1,42 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import os
 from dotenv import load_dotenv
+from playwright.sync_api import sync_playwright, TimeoutError
 
 load_dotenv()
 
 SP_USERNAME = os.getenv("SP_USERNAME")
 SP_PASSWORD = os.getenv("SP_PASSWORD")
 
-def get_driver():
-    chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    chrome_options.add_experimental_option("useAutomationExtension", False)
-    return webdriver.Chrome(options=chrome_options)
-
 def main():
-    driver = get_driver()
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context()
+        page = context.new_page()
 
-    try:
-        driver.get("https://hub.servicepower.com/signin")
+        try:
+            page.goto("https://hub.servicepower.com/signin", timeout=30000)
+            page.screenshot(path="page_loaded.png")
 
-        # 🔍 Save a screenshot of the login page (for debugging)
-        driver.save_screenshot("login_page.png")
+            page.fill('input[name="username"]', SP_USERNAME)
+            page.fill('input[name="password"]', SP_PASSWORD)
+            page.click('button[type="submit"]')
 
-        print(driver.page_source[:1000])  # print first 1000 characters of HTML
+            page.wait_for_load_state("networkidle")
+            page.screenshot(path="after_login.png")
+            print("✅ Login attempted")
 
-        # ✅ Wait for login fields
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.ID, "username"))
-        )
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.ID, "password"))
-        )
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.ID, "login"))
-        )
+            # Optional: check if login was successful
+            if "dashboard" in page.url or "home" in page.url:
+                print("🎉 Logged in successfully!")
+            else:
+                print("⚠️ Login may not have worked. Check screenshot.")
 
-        # ✍️ Fill in credentials
-        driver.find_element(By.ID, "username").send_keys(SP_USERNAME)
-        driver.find_element(By.ID, "password").send_keys(SP_PASSWORD)
-        driver.find_element(By.ID, "login").click()
-
-        print("✅ Login attempted successfully.")
-
-        # 🧠 Optional: wait for some post-login indicator
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.ID, "dashboard"))
-        )
-        print("🎉 Logged in and dashboard loaded.")
-
-    except Exception as e:
-        # 🛠 Log the actual error type and save screenshot
-        print("❌ Login failed:", type(e).__name__, "-", str(e))
-        driver.save_screenshot("error_debug.png")
-
-    finally:
-        driver.quit()
+        except TimeoutError:
+            print("❌ Timeout loading page")
+        except Exception as e:
+            print("❌ Login failed:", type(e).__name__, "-", str(e))
+        finally:
+            browser.close()
 
 if __name__ == "__main__":
     main()
