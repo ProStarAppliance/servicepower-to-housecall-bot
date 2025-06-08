@@ -9,7 +9,7 @@ SP_PASSWORD = os.getenv("SP_PASSWORD")
 
 def main():
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(channel="chrome", headless=True)
         context = browser.new_context()
         page = context.new_page()
 
