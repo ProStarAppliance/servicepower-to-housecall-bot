@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 # Use a base image with Python and dependencies
 FROM python:3.11-slim
 
 # Install Chrome and dependencies
+=======
+FROM python:3.11-slim
+
+>>>>>>> 00fe1e4 (Add Dockerfile to support full Chrome install)
 RUN apt-get update && \
     apt-get install -y wget gnupg2 software-properties-common apt-transport-https \
     libgtk-4-1 libgraphene-1.0-0 libgstreamer-gl1.0-0 libgstreamer-plugins-base1.0-0 \
@@ -12,6 +17,7 @@ RUN apt-get update && \
     apt-get update && apt-get install -y google-chrome-stable && \
     ln -s /usr/bin/google-chrome /opt/google/chrome/chrome
 
+<<<<<<< HEAD
 # Set work directory
 WORKDIR /app
 
@@ -19,9 +25,18 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies
+=======
+WORKDIR /app
+
+COPY . .
+
+>>>>>>> 00fe1e4 (Add Dockerfile to support full Chrome install)
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt && \
     playwright install chrome
 
+<<<<<<< HEAD
 # Run your script
+=======
+>>>>>>> 00fe1e4 (Add Dockerfile to support full Chrome install)
 CMD ["python", "login_servicepower.py"]
