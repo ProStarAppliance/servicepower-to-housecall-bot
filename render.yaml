@@ -1,11 +1,21 @@
-build:
-  command: |
-    apt-get update && apt-get install -y wget gnupg ca-certificates && \
-    wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get update && apt-get install -y google-chrome-stable && \
-    pip install -r requirements.txt && \
-    playwright install
-
-start:
-  command: python login_servicepower.py
+services:
+  - type: web
+    name: servicepower-to-housecall-bot
+    env: python
+    buildCommand: |
+      apt-get update && apt-get install -y wget gnupg
+      wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
+      sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+      apt-get update && apt-get install -y google-chrome-stable
+      pip install -r requirements.txt
+      playwright install chrome
+    startCommand: python login_servicepower.py
+    region: oregon
+    plan: free
+    branch: main
+    runtime: python
+    buildFilter:
+      paths:
+        - "**/*.py"
+        - requirements.txt
+        - render.yaml
