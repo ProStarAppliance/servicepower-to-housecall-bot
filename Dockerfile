@@ -1,0 +1,27 @@
+# Use a base image with Python and dependencies
+FROM python:3.11-slim
+
+# Install Chrome and dependencies
+RUN apt-get update && \
+    apt-get install -y wget gnupg2 software-properties-common apt-transport-https \
+    libgtk-4-1 libgraphene-1.0-0 libgstreamer-gl1.0-0 libgstreamer-plugins-base1.0-0 \
+    libgstreamer-plugins-good1.0-0 libavif15 libenchant-2-2 libsecret-1-0 \
+    libmanette-0.2-0 libgles2 curl ca-certificates && \
+    curl -sSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/google.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && apt-get install -y google-chrome-stable && \
+    ln -s /usr/bin/google-chrome /opt/google/chrome/chrome
+
+# Set work directory
+WORKDIR /app
+
+# Copy your code
+COPY . .
+
+# Install dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    playwright install chrome
+
+# Run your script
+CMD ["python", "login_servicepower.py"]
