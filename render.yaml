@@ -3,21 +3,17 @@ services:
     name: servicepower-to-housecall-bot
     env: python
     buildCommand: |
-      apt-get update && apt-get install -y wget gnupg curl apt-transport-https software-properties-common
-      wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
-      sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list'
-      apt-get update && apt-get install -y google-chrome-stable
-      mkdir -p /opt/google/chrome
-      ln -sf /usr/bin/google-chrome /opt/google/chrome/chrome
-      pip install -r requirements.txt
+      apt-get update && \
+      apt-get install -y wget gnupg2 software-properties-common apt-transport-https curl ca-certificates && \
+      apt-get install -y libgtk-4-1 libgraphene-1.0-0 libgstreamer-gl1.0-0 libgstreamer-plugins-base1.0-0 \
+                         libgstreamer-plugins-good1.0-0 libavif15 libenchant-2-2 libsecret-1-0 libmanette-0.2-0 \
+                         libgles2 && \
+      curl -sSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google.gpg && \
+      echo "deb [signed-by=/usr/share/keyrings/google.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+        > /etc/apt/sources.list.d/google-chrome.list && \
+      apt-get update && \
+      apt-get install -y google-chrome-stable && \
+      ln -sf /usr/bin/google-chrome /opt/google/chrome/chrome && \
+      pip install -r requirements.txt && \
       playwright install chrome
     startCommand: python login_servicepower.py
-    plan: free
-    region: oregon
-    runtime: python
-    branch: main
-    buildFilter:
-      paths:
-        - "**/*.py"
-        - requirements.txt
-        - render.yaml
