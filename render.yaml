@@ -1,8 +1,33 @@
-services:
-  - type: web
-    name: servicepower-to-housecall-bot
-    env: python
-    buildCommand: |
-      pip install -r requirements.txt
-      python -m playwright install --with-deps
-    startCommand: python login_servicepower.py
+build:
+  commands:
+    - apt-get update && apt-get install -y wget gnupg2
+    - apt-get install -y \
+        libgtk-3-0 \
+        libgtk-4-1 \
+        libgbm-dev \
+        libnss3 \
+        libxss1 \
+        libasound2 \
+        libx11-xcb1 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxrandr2 \
+        libatk1.0-0 \
+        libatspi2.0-0 \
+        libcups2 \
+        libdrm2 \
+        libenchant-2-2 \
+        libsecret-1-0 \
+        libwayland-client0 \
+        libwayland-cursor0 \
+        libwayland-egl1 \
+        libavif15 \
+        libmanette-0.2-0 \
+        libgraphene-1.0-0 \
+        libgstreamer-plugins-base1.0-0 \
+        libgstreamer-gl1.0-0 \
+        libgstreamer-plugins-good1.0-0 \
+        gstreamer1.0-libav
+
+    - pip install -r requirements.txt
+    - playwright install chrome
